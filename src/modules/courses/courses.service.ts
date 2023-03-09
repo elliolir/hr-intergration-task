@@ -1,25 +1,30 @@
-import axios from 'axios';
-import { Person, CoursePreview } from './courses.types';
-
-// TODO add env variables validation?
-const { BASE_URL } = process.env;
-
-const integrationUrls = {
-  trainers: `${BASE_URL}/api/trainers`,
-  learners: `${BASE_URL}/api/learners`,
-  courses: `${BASE_URL}/api/courses`
-};
+import { CourseFull } from './courses.types';
+import coursesRepository from './courses.repository';
 
 const coursesService = {
-  getTrainers: () => axios.get<Person[]>(integrationUrls.trainers),
-  getTrainer: (trainerId: string) =>
-    axios.get<Person>(`${integrationUrls.trainers}/${trainerId}`),
-  getLearners: () => axios.get<Person[]>(integrationUrls.learners),
-  getLearner: (learnerId: string) =>
-    axios.get<Person>(`${integrationUrls.learners}/${learnerId}`),
-  getCourses: () => axios.get<CoursePreview[]>(integrationUrls.courses),
-  getCourse: (courseId: string) =>
-    axios.get<CoursePreview>(`${integrationUrls.courses}/${courseId}`)
+  async getCourseFull(id: string): Promise<CourseFull | null> {
+    const courseData = await coursesRepository.getCourse(id);
+
+    if (!courseData) {
+      return null;
+    }
+
+    const { trainerId, learners: learnerIds, ...rest } = courseData;
+
+    // TODO speed-up (with Promise.all or even a proper caching?)
+    const trainer = await coursesRepository.getTrainer(trainerId);
+    const learners = await coursesRepository.getLearners(learnerIds);
+
+    if (!trainer) {
+      return null;
+    }
+
+    return {
+      ...rest,
+      trainer,
+      learners
+    };
+  }
 };
 
 export default coursesService;

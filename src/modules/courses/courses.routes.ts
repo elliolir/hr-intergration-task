@@ -1,26 +1,29 @@
 import { Router, Request } from 'express';
-import coursesController from './cources.controllers';
+import { StatusCodes } from 'http-status-codes';
+
+import coursesService from './courses.service';
+import coursesRepository from './courses.repository';
 
 const router = Router();
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
   try {
-    const courses = await coursesController.getCourses();
-    res.send(courses);
+    const courses = await coursesRepository.getCourses();
+
+    return courses?.length
+      ? res.json(courses)
+      : res.status(StatusCodes.NOT_FOUND);
   } catch (e) {
-    console.log(e);
-    res.send('Nothing');
+    next(e);
   }
 });
 
-router.get('/:id', async (req: Request<{ id: string }>, res) => {
-  // TODO add params validation?
+router.get('/:id', async (req: Request<{ id: string }>, res, next) => {
   try {
-    const course = await coursesController.getCourse(req.params.id);
-    res.send(course);
+    const course = await coursesService.getCourseFull(req.params.id);
+
+    return course ? res.json(course) : res.status(StatusCodes.NOT_FOUND);
   } catch (e) {
-    // TODO improve error handling
-    console.log(e);
-    res.send('Nothing');
+    next(e);
   }
 });
 
