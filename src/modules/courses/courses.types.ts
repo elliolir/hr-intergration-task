@@ -19,4 +19,8 @@ interface CourseFull extends CourseBase {
   learners: Person[];
 }
 
-export { Person, CourseBase, CoursePreview, CourseFull };
+interface CoursesResp {
+  courses: CoursePreview[];
+}
+
+export { Person, CourseBase, CoursePreview, CourseFull, CoursesResp };

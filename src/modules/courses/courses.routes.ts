@@ -1,30 +1,10 @@
-import { Router, Request } from 'express';
-import { StatusCodes } from 'http-status-codes';
+import { Router } from 'express';
 
-import coursesService from './courses.service';
-import coursesRepository from './courses.repository';
+import { getCourseFullData, getCoursesPreview } from './courses.controller';
 
 const router = Router();
-router.get('/', async (req, res, next) => {
-  try {
-    const courses = await coursesRepository.getCourses();
 
-    return courses?.length
-      ? res.json(courses)
-      : res.status(StatusCodes.NOT_FOUND);
-  } catch (e) {
-    next(e);
-  }
-});
-
-router.get('/:id', async (req: Request<{ id: string }>, res, next) => {
-  try {
-    const course = await coursesService.getCourseFull(req.params.id);
-
-    return course ? res.json(course) : res.status(StatusCodes.NOT_FOUND);
-  } catch (e) {
-    next(e);
-  }
-});
+router.get('/', getCoursesPreview); //self-testing route
+router.get('/:id', getCourseFullData);
 
 export default router;

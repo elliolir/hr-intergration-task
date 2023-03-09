@@ -3,7 +3,7 @@ import express, { json } from 'express';
 import './configs';
 
 import courses from './modules/courses/courses.routes';
-import { handleErrorMiddleware } from './modules/core/error-handling.core';
+import { handleErrorMiddleware } from './modules/middlewares';
 
 const app = express();
 
